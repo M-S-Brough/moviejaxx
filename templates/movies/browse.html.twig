@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Welcome to MovieJaxx{% endblock %}
+
+{% block body %}
+    <div class="album py-5 bg-body-tertiary">
+        <div class="container">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                {% for movie in movies %}
+                    <div class="col">
+                        <div class="card shadow-sm">
+                            <!-- Replace the SVG with an image tag -->
+                            <img class="bd-placeholder-img card-img-top" src="{{ asset(movie.getImage) }}" alt="Film Cover" width="300">
+
+                            <div class="card-body">
+                                <h5 class="card-title">{{ movie.title }}</h5>
+                                <p class="card-text">{{ movie.director }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+                                    </div>
+                                    <small class="text-body-secondary">{{ movie.runningTime }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

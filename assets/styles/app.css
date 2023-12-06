@@ -1,0 +1,9 @@
+body {
+    background-color: maroon;
+}
+
+.card-img-top {
+    width: 100%; /* This makes the image fill the card width */
+    height: 500px; /* Fixed height */
+    object-fit: cover; /* This will cover the area without distorting the image */
+}
