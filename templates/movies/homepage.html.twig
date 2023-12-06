@@ -1,20 +1,19 @@
-
 {% extends 'base.html.twig' %}
 
 {% block title %}Welcome to MovieJaxx{% endblock %}
 
 {% block body %}
     <div class="container">
-        <header class="jumbotron mt-4">
+        <header class="jumbotron mt-4 text-center" style="padding: 20px;">
             <h1 class="display-4">Welcome to MovieJaxx!</h1>
             <p class="lead">Your ultimate destination for honest and comprehensive movie reviews.</p>
-            <hr class="my-4">
+            <hr class="my-4" style="max-width: 60%; margin: auto;">
             <p>Explore movie reviews, share your thoughts, and discover your next favorite movie with us.</p>
-            <a class="btn btn-primary btn-lg" href="#" role="button">Browse Movies</a>
         </header>
 
-        <section>
-            <!-- You can add more content here, like featured reviews or top-rated movies -->
+        <section class="text-center" style="margin-top: 30px;">
+            <img src="{{ asset('images/movieJaxx.png') }}" alt="MovieJaxx Logo" style="max-width: 100%; height: auto; max-height: 300px;">
         </section>
     </div>
 {% endblock %}
+

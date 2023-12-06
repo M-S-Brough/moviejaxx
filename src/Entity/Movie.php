@@ -26,17 +26,15 @@ class Movie
     #[ORM\Column(type: Types::ARRAY, nullable: true)]
     private ?array $cast = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $reviewer = null;
-
-    #[ORM\Column(nullable: true)]
-    private ?int $review = null;
 
     #[ORM\Column(length: 255)]
     private ?string $image = null;
 
     #[ORM\Column]
     private ?int $runningTime = null;
+
+    #[ORM\OneToOne(inversedBy: 'yes', cascade: ['persist', 'remove'])]
+    private ?Review $review = null;
 
     public function getId(): ?int
     {
@@ -91,29 +89,8 @@ class Movie
         return $this;
     }
 
-    public function getReviewer(): ?int
-    {
-        return $this->reviewer;
-    }
 
-    public function setReviewer(?int $reviewer): static
-    {
-        $this->reviewer = $reviewer;
 
-        return $this;
-    }
-
-    public function getReview(): ?int
-    {
-        return $this->review;
-    }
-
-    public function setReview(?int $review): static
-    {
-        $this->review = $review;
-
-        return $this;
-    }
 
     public function getImage(): ?string
     {
@@ -135,6 +112,18 @@ class Movie
     public function setRunningTime(int $runningTime): static
     {
         $this->runningTime = $runningTime;
+
+        return $this;
+    }
+
+    public function getReview(): ?Review
+    {
+        return $this->review;
+    }
+
+    public function setReview(?Review $review): static
+    {
+        $this->review = $review;
 
         return $this;
     }

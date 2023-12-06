@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+
+
+{% block body %}
+    <div style="background: url('{{ asset(movie.image) }}') no-repeat center center; background-size: cover; min-height: 100vh;">
+        <div class="container text-center" style="padding-top: 100px; color: white;">
+            <div style="background-color: rgba(0,0,0,0.5); display: inline-block; padding: 20px;">
+                <h1>{{ movie.title }} ({{ movie.releaseYear }})</h1>
+                <p>{{ movie.director }} | Running Time: {{ movie.runningTime }}</p>
+                <div>
+                    <strong>Cast:</strong>
+                    {% for actor in movie.cast %}
+                        <span>{{ actor }}{% if not loop.last %}, {% endif %}</span>
+                    {% endfor %}
+                </div>
+                <div>
+                    <strong>Reviews:</strong>
+                    <p>{{ movie.review }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
