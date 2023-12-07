@@ -28,6 +28,7 @@
                     <li><a href="{{ path('app_homepage') }}" class="nav-link px-2 text-white">Home</a></li>
                     <li><a href="{{ path('app_movies') }}" class="nav-link px-2 text-white">Browse</a></li>
                     {% if app.user %}
+                        <li><a href="{{ path('create_movie') }}" class="nav-link px-2 text-white">Add New Movie</a></li>
                     <li class="nav-link px-2 text-white"> |      Welcome: {{ app.user.email }}</li>
 {% endif %}
                 </ul>

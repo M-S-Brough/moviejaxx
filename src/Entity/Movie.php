@@ -14,7 +14,7 @@ class Movie
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 180, unique: true)]
     private ?string $title = null;
 
     #[ORM\Column]
@@ -23,8 +23,8 @@ class Movie
     #[ORM\Column(length: 255)]
     private ?string $director = null;
 
-    #[ORM\Column(type: Types::ARRAY, nullable: true)]
-    private ?array $cast = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $cast = null;
 
 
     #[ORM\Column(length: 255)]
@@ -36,6 +36,9 @@ class Movie
     #[ORM\OneToOne(inversedBy: 'yes', cascade: ['persist', 'remove'])]
     private ?Review $review = null;
 
+    // Non-persisted field for handling new review data from the form
+    private $newReview;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -46,7 +49,7 @@ class Movie
         return $this->title;
     }
 
-    public function setTitle(string $title): static
+    public function setTitle(string $title): self
     {
         $this->title = $title;
 
@@ -58,7 +61,7 @@ class Movie
         return $this->releaseYear;
     }
 
-    public function setReleaseYear(int $releaseYear): static
+    public function setReleaseYear(int $releaseYear): self
     {
         $this->releaseYear = $releaseYear;
 
@@ -70,34 +73,31 @@ class Movie
         return $this->director;
     }
 
-    public function setDirector(string $director): static
+    public function setDirector(string $director): self
     {
         $this->director = $director;
 
         return $this;
     }
 
-    public function getCast(): ?array
+    public function getCast(): ?string
     {
         return $this->cast;
     }
 
-    public function setCast(?array $cast): static
+    public function setCast(?string $cast): self
     {
         $this->cast = $cast;
 
         return $this;
     }
 
-
-
-
     public function getImage(): ?string
     {
         return $this->image;
     }
 
-    public function setImage(string $image): static
+    public function setImage(string $image): self
     {
         $this->image = $image;
 
@@ -109,7 +109,7 @@ class Movie
         return $this->runningTime;
     }
 
-    public function setRunningTime(int $runningTime): static
+    public function setRunningTime(int $runningTime): self
     {
         $this->runningTime = $runningTime;
 
@@ -121,9 +121,22 @@ class Movie
         return $this->review;
     }
 
-    public function setReview(?Review $review): static
+    public function setReview(?Review $review): self
     {
         $this->review = $review;
+
+        return $this;
+    }
+
+    // Getter and setter for the newReview field
+    public function getNewReview(): ?Review
+    {
+        return $this->newReview;
+    }
+
+    public function setNewReview(?Review $newReview): self
+    {
+        $this->newReview = $newReview;
 
         return $this;
     }

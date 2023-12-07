@@ -9,7 +9,7 @@ use Doctrine\Persistence\ObjectManager;
 class MovieFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
-    {
+    {/*
         $movie = new Movie();
         $movie->setDirector('Robert Zemeckis');
         $movie->setRunningTime(116);
@@ -46,6 +46,6 @@ class MovieFixtures extends Fixture
         $movie4->setImage('build/images/ghostbusters.3b686ebf.jpg');
         $manager->persist($movie4);
 
-        $manager->flush();
+        $manager->flush(); */
     }
 }

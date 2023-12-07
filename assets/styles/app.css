@@ -103,3 +103,16 @@ a:hover, .btn-primary:hover {
     border-radius: 0.25rem;
     transition: background-color 0.2s, color 0.2s;
 }
+
+.chic-input {
+    background-color: var(--chic-dark-accent);
+    color: var(--chic-text-color);
+    border: 1px solid var(--chic-muted);
+    border-radius: 0.25rem;
+    padding: 0.375rem 0.75rem;
+}
+.form-container {
+    width: 75%;
+    margin: 0 auto; /* This centers the form */
+}
+

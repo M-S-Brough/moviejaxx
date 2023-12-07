@@ -33,7 +33,7 @@ class Review
         return $this->title;
     }
 
-    public function setTitle(string $title): static
+    public function setTitle(string $title): self
     {
         $this->title = $title;
 
@@ -45,7 +45,7 @@ class Review
         return $this->reviewText;
     }
 
-    public function setReviewText(string $reviewText): static
+    public function setReviewText(string $reviewText): self
     {
         $this->reviewText = $reviewText;
 
@@ -57,7 +57,7 @@ class Review
         return $this->yes;
     }
 
-    public function setYes(?Movie $yes): static
+    public function setYes(?Movie $yes): self
     {
         // unset the owning side of the relation if necessary
         if ($yes === null && $this->yes !== null) {
