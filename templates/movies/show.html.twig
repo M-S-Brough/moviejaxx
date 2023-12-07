@@ -1,7 +1,5 @@
 {% extends 'base.html.twig' %}
 
-
-
 {% block body %}
     <div style="background: url({{ asset(movie.image) }}) no-repeat center center; background-size: cover; min-height: 100vh;">
         <div class="container text-center" style="padding-top: 100px; color: white;">
@@ -9,28 +7,35 @@
                 <h1>{{ movie.title }} ({{ movie.releaseYear }})</h1>
                 <p>{{ movie.director }} | Running Time: {{ movie.runningTime }}</p>
                 <div>
-                    <strong>Cast:</strong>
-
-                        <span>{{ movie.cast }}</span>
-
+                    <strong>Cast:</strong> <span>{{ movie.cast }}</span>
                 </div>
                 <div>
-                    <strong>{{ movie.review.title }}</strong>
-                    <p>{{ movie.review.getReviewText }}</p>
-
+                    <strong>Reviews:</strong>
+                    {% if movie.reviews|length > 0 %}
+                        {% for review in movie.reviews %}
+                            <div class="review">
+                                <h4>{{ review.title }}</h4>
+                                <p>{{ review.reviewText }}</p>
+                                {% if app.user %}
+                                    <div class="text-end">
+                                        <a href="/movies/edit/{{ review.id }}" class="btn btn-outline-light me-2">Edit Review</a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <hr> <!-- Line added between reviews -->
+                        {% endfor %}
+                    {% else %}
+                        <p>No reviews yet.</p>
+                    {% endif %}
                     {% if app.user %}
-                    <div class="text-end">
-                        <a href="/movies/edit/{{ movie.id }}" class="btn btn-outline-light me-2">
-                            Edit
-                        </a>
-                    </div>
-{% endif %}
-
+                        <div class="text-end">
+                            <a href="/movies/add/{{ movie.id }}" class="btn btn-outline-light me-2">Add Review</a>
+                        </div>
+                    {% endif %}
                 </div>
-
             </div>
-
         </div>
     </div>
-
 {% endblock %}
+
+

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Movie;
+use App\Entity\Review;
 use App\Form\MovieFormType;
 use App\Form\ReviewFormType;
 use App\Repository\MovieRepository;
@@ -63,11 +64,10 @@ class MoviesController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $newMovie = $form->getData(); // Get the Movie entity populated with form data
 
-            // Handle newReview data
-            $newReviewData = $form->get('newReview')->getData();
-            if ($newReviewData) {
-                $newMovie->setReview($newReviewData); // Associate the review with the movie
-                $this->entityManager->persist($newReviewData); // Persist the new review
+            // Handling multiple reviews
+            foreach ($newMovie->getReviews() as $review) {
+                $review->setMovie($newMovie); // Set the relationship
+                $this->entityManager->persist($review);
             }
 
             // Handle image upload
@@ -100,6 +100,7 @@ class MoviesController extends AbstractController
     }
 
 
+
     #[Route('//browse/{id}', name: 'app_movies_show-movie', methods: ['GET'])]
     public function showMovie($id): Response
     {
@@ -116,27 +117,23 @@ class MoviesController extends AbstractController
 
     }
 
-    #[Route('/movies/edit/{id}', name: 'edit_movie')]
-    public function editReview($id, Request $request): Response
+    #[Route('/movies/edit/{id}', name: 'edit_review')]
+    public function editReview($id, Request $request, EntityManagerInterface $entityManager): Response
     {
-        $movie = $this->movieRepository->find($id);
-
-        if (!$movie) {
-            throw $this->createNotFoundException('No movie found for id '.$id);
-        }
-
-        $review = $movie->getReview();
+        // Use the entity manager to get the Review repository
+        $reviewRepository = $entityManager->getRepository(Review::class);
+        $review = $reviewRepository->find($id);
 
         if (!$review) {
-            throw $this->createNotFoundException('No review found for this movie.');
+            throw $this->createNotFoundException('No review found for id ' . $id);
         }
 
         $form = $this->createForm(ReviewFormType::class, $review);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->entityManager->persist($review);
-            $this->entityManager->flush();
+            $entityManager->persist($review);
+            $entityManager->flush();
 
             // Redirect after successful edit, modify the route as needed
             return $this->redirectToRoute('app_movies');
@@ -144,10 +141,39 @@ class MoviesController extends AbstractController
 
         return $this->render('movies/edit.html.twig', [
             'form' => $form->createView(),
-            'movie' => $movie
+            'review' => $review
         ]);
     }
 
+
+    #[Route('/movies/add/{movieId}', name: 'add_review', methods: ['GET', 'POST'])]
+    public function addReview(Request $request, EntityManagerInterface $entityManager, $movieId): Response
+    {
+        $movie = $entityManager->getRepository(Movie::class)->find($movieId);
+        if (!$movie) {
+            throw $this->createNotFoundException('Movie not found.');
+        }
+
+        $review = new Review();
+        $form = $this->createForm(ReviewFormType::class, $review);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $review->setMovie($movie); // Associate the review with the movie
+            // If you have user authentication, set the author of the review
+            // $review->setAuthor($this->getUser());
+            $entityManager->persist($review);
+            $entityManager->flush();
+
+            // Redirect to the movie page or another appropriate page
+            return $this->redirectToRoute('app_movies_show-movie', ['id' => $movieId]);
+        }
+
+        return $this->render('movies/add.html.twig', [
+            'form' => $form->createView(),
+            'movie' => $movie,
+        ]);
+    }
 
 
 

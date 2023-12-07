@@ -1,10 +1,10 @@
 <?php
-
 namespace App\Entity;
 
 use App\Repository\ReviewRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Movie;
 
 #[ORM\Entity(repositoryClass: ReviewRepository::class)]
 class Review
@@ -20,8 +20,11 @@ class Review
     #[ORM\Column(type: Types::TEXT)]
     private ?string $reviewText = null;
 
-    #[ORM\OneToOne(mappedBy: 'review', cascade: ['persist', 'remove'])]
-    private ?Movie $yes = null;
+    // The correct relationship with the Movie entity
+    #[ORM\ManyToOne(targetEntity: Movie::class, inversedBy: 'reviews')]
+    #[ORM\JoinColumn(name: "movie_id", referencedColumnName: "id")]
+    private ?Movie $movie;
+
 
     public function getId(): ?int
     {
@@ -52,24 +55,14 @@ class Review
         return $this;
     }
 
-    public function getYes(): ?Movie
+    public function getMovie(): ?Movie
     {
-        return $this->yes;
+        return $this->movie;
     }
 
-    public function setYes(?Movie $yes): self
+    public function setMovie(?Movie $movie): self
     {
-        // unset the owning side of the relation if necessary
-        if ($yes === null && $this->yes !== null) {
-            $this->yes->setReview(null);
-        }
-
-        // set the owning side of the relation if necessary
-        if ($yes !== null && $yes->getReview() !== $this) {
-            $yes->setReview($this);
-        }
-
-        $this->yes = $yes;
+        $this->movie = $movie;
 
         return $this;
     }

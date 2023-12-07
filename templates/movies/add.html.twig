@@ -3,18 +3,14 @@
 {% block body %}
     <div class="w-4/5 m-auto pt-40">
         <h1 class="text-6xl text-center pb-12">
-            {{ review.title }}
+            Create Review
         </h1>
-        <h2 class="text-6xl text-center pb-12">
-            Edit Review
-
-        </h2>
-
 
         <div class="form-container">
             {{ form_start(form) }}
 
             {{ form_widget(form) }}
+
             <button
                     type="submit"
                     class="btn btn-outline-light me-2">

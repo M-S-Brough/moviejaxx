@@ -1,8 +1,9 @@
 <?php
-
 namespace App\Entity;
 
 use App\Repository\MovieRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -26,18 +27,22 @@ class Movie
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $cast = null;
 
-
     #[ORM\Column(length: 255)]
     private ?string $image = null;
 
     #[ORM\Column]
     private ?int $runningTime = null;
 
-    #[ORM\OneToOne(inversedBy: 'yes', cascade: ['persist', 'remove'])]
-    private ?Review $review = null;
+    #[ORM\OneToMany(mappedBy: 'movie', targetEntity: Review::class, cascade: ['persist', 'remove'])]
+    private Collection $reviews;
 
     // Non-persisted field for handling new review data from the form
     private $newReview;
+
+    public function __construct()
+    {
+        $this->reviews = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -116,17 +121,37 @@ class Movie
         return $this;
     }
 
-    public function getReview(): ?Review
+    /**
+     * @return Collection|Review[]
+     */
+    public function getReviews(): Collection
     {
-        return $this->review;
+        return $this->reviews;
     }
 
-    public function setReview(?Review $review): self
+    public function addReview(Review $review): self
     {
-        $this->review = $review;
+        if (!$this->reviews->contains($review)) {
+            $this->reviews[] = $review;
+            $review->setMovie($this);
+        }
 
         return $this;
     }
+
+    public function removeReview(Review $review): self
+    {
+        if ($this->reviews->removeElement($review)) {
+            // Set the owning side to null (unless already changed)
+            if ($review->getMovie() === $this) {
+                $review->setMovie(null);
+            }
+        }
+
+        return $this;
+    }
+
+    // ... remaining methods ...
 
     // Getter and setter for the newReview field
     public function getNewReview(): ?Review
