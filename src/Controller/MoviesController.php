@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Movie;
 use App\Form\MovieFormType;
+use App\Form\ReviewFormType;
 use App\Repository\MovieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,12 +15,14 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class MoviesController extends AbstractController
 {
-    private  $entityManager;
+    private EntityManagerInterface $entityManager;
+    private $movieRepository;
     private $em;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, MovieRepository $movieRepository)
     {
         $this->entityManager = $entityManager;
+        $this->movieRepository = $movieRepository;
     }
 
 
@@ -111,6 +114,38 @@ class MoviesController extends AbstractController
 
         ]);
 
+    }
+
+    #[Route('/movies/edit/{id}', name: 'edit_movie')]
+    public function editReview($id, Request $request): Response
+    {
+        $movie = $this->movieRepository->find($id);
+
+        if (!$movie) {
+            throw $this->createNotFoundException('No movie found for id '.$id);
+        }
+
+        $review = $movie->getReview();
+
+        if (!$review) {
+            throw $this->createNotFoundException('No review found for this movie.');
+        }
+
+        $form = $this->createForm(ReviewFormType::class, $review);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->persist($review);
+            $this->entityManager->flush();
+
+            // Redirect after successful edit, modify the route as needed
+            return $this->redirectToRoute('app_movies');
+        }
+
+        return $this->render('movies/edit.html.twig', [
+            'form' => $form->createView(),
+            'movie' => $movie
+        ]);
     }
 
 

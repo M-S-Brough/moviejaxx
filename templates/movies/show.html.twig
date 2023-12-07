@@ -17,8 +17,20 @@
                 <div>
                     <strong>{{ movie.review.title }}</strong>
                     <p>{{ movie.review.getReviewText }}</p>
+
+                    {% if app.user %}
+                    <div class="text-end">
+                        <a href="/movies/edit/{{ movie.id }}" class="btn btn-outline-light me-2">
+                            Edit
+                        </a>
+                    </div>
+{% endif %}
+
                 </div>
+
             </div>
+
         </div>
     </div>
+
 {% endblock %}
