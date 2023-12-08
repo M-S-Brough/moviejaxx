@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h2>Search Results for "{{ search }}"</h2>
+    <div class="album py-5">
+        <div class="container">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                {% for movie in movies %}
+                    <div class="col">
+                        <div class="card shadow-sm">
+                            <a href="{{ path('app_movies_show-movie', {'id': movie.id}) }}">
+                                <img class="bd-placeholder-img card-img-top" src="{{ asset(movie.image) }}" alt="Film Cover" width="300">
+                            </a>
+
+                            <div class="card-body">
+                                <h5 class="card-title">{{ movie.title }} | {{ movie.releaseYear }}</h5>
+                                <p class="card-text">{{ movie.director }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small>Running Time: {{ movie.runningTime }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <p>No movies found.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

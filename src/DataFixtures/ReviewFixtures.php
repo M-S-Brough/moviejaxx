@@ -6,6 +6,7 @@ use App\Entity\Movie;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use App\Entity\Review;
+use Exception;
 
 class ReviewFixtures extends Fixture
 {
@@ -17,7 +18,7 @@ class ReviewFixtures extends Fixture
         $movie = $manager->getRepository(Movie::class)->find($movieId);
 
         if (!$movie) {
-            throw new \Exception('Movie not found');
+            throw new Exception('Movie not found');
         }
 
         $review = new Review();

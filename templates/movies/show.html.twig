@@ -17,8 +17,8 @@
                         {% for review in movie.reviews %}
                             <div class="review">
                                 <h4>{{ review.title }}</h4>
-                                <p>{{ review.reviewText }} <br> |{{ review.author.username }}|
-                                    {{ review.createdAt|date('Y-m-d H:i:s') }}|</p>
+                                <p>{{ review.reviewText }} <br> <strong>| {{ review.author.username }} |
+                                        {{ review.createdAt|date('Y-m-d H:i:s') }} | </strong></p>
 
                                 {% if app.user and review.author == app.user %}
                                     <div class="text-end">

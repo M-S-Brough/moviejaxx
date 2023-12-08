@@ -96,7 +96,8 @@ class MoviesController extends AbstractController
             $this->entityManager->persist($newMovie);
             $this->entityManager->flush();
 
-            return $this->redirectToRoute('app_movies');
+            $movieId = $newMovie->getId();
+            return $this->redirectToRoute('app_movies_show-movie', ['id' => $movieId]);
         }
 
         return $this->render('movies/create.html.twig', [
@@ -122,6 +123,18 @@ class MoviesController extends AbstractController
 
         ]);
 
+    }
+
+    #[Route('/search', name: 'search_movies')]
+    public function search(Request $request): Response
+    {
+        $searchTerm = $request->query->get('query');
+        $results = $this->movieRepository->searchMovies($searchTerm);
+
+        return $this->render('movies/search_results.html.twig', [
+            'search' => $searchTerm, // Pass the search term to the template
+            'movies' => $results,
+        ]);
     }
 
 
