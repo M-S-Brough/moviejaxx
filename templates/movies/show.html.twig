@@ -1,5 +1,7 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}{{ movie.title }}{% endblock %}
+
 {% block body %}
     <div style="background: url({{ asset(movie.image) }}) no-repeat center center; background-size: cover; min-height: 100vh;">
         <div class="container text-center" style="padding-top: 100px; color: white;">
@@ -15,21 +17,24 @@
                         {% for review in movie.reviews %}
                             <div class="review">
                                 <h4>{{ review.title }}</h4>
-                                <p>{{ review.reviewText }}</p>
-                                {% if app.user %}
+                                <p>{{ review.reviewText }} <br> |{{ review.author.username }}|
+                                    {{ review.createdAt|date('Y-m-d H:i:s') }}|</p>
+
+                                {% if app.user and review.author == app.user %}
                                     <div class="text-end">
-                                        <a href="/movies/edit/{{ review.id }}" class="btn btn-outline-light me-2">Edit Review</a>
+                                        <a href="{{ path('edit_review', {'id': review.id}) }}" class="btn btn-outline-light me-2">Edit Review</a>
                                     </div>
+
                                 {% endif %}
                             </div>
-                            <hr> <!-- Line added between reviews -->
+                            <hr>
                         {% endfor %}
                     {% else %}
                         <p>No reviews yet.</p>
                     {% endif %}
                     {% if app.user %}
                         <div class="text-end">
-                            <a href="/movies/add/{{ movie.id }}" class="btn btn-outline-light me-2">Add Review</a>
+                            <a href="{{ path('add_review', {'movieId': movie.id}) }}" class="btn btn-outline-light me-2">Add Review</a>
                         </div>
                     {% endif %}
                 </div>
@@ -37,5 +42,4 @@
         </div>
     </div>
 {% endblock %}
-
 

@@ -8,6 +8,7 @@ use App\Form\MovieFormType;
 use App\Form\ReviewFormType;
 use App\Repository\MovieRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,20 +38,24 @@ class MoviesController extends AbstractController
     }
 
     #[Route('//browse/', name: 'app_movies', methods: ['GET'])]
-    public function index(): Response
+    public function browseMovies(Request $request, PaginatorInterface $paginator): Response
     {
         // findAll() - SELECT * FROM movies;
         // find() - SELECT * FROM movies WHERE id = 5;
         // findBy() - SELECT * FROM movies ORDER BY runningTime DESC (findBy([],['runningTime' => 'DESC']))
-        $repository =$this->entityManager->getRepository(Movie::class);
+        $queryBuilder = $this->entityManager->getRepository(Movie::class)
+            ->createQueryBuilder('m')
+            ->orderBy('m.id', 'ASC'); // Adjust the query as needed
 
-        $movies = $repository->findAll();
-
+        $pagination = $paginator->paginate(
+            $queryBuilder,
+            $request->query->getInt('page', 1), // Default to page 1
+            6 // Number of items per page
+        );
 
         return $this->render('movies/browse.html.twig', [
-
-            'movies' => $movies,
-
+            'title' => 'Browse',
+            'pagination' => $pagination
         ]);
 
     }
@@ -95,6 +100,7 @@ class MoviesController extends AbstractController
         }
 
         return $this->render('movies/create.html.twig', [
+            'title' => 'Create New Movie',
             'form' => $form->createView()
         ]);
     }
@@ -111,69 +117,14 @@ class MoviesController extends AbstractController
 
         return $this->render('movies/show.html.twig', [
 
+
             'movie' => $movies,
 
         ]);
 
     }
 
-    #[Route('/movies/edit/{id}', name: 'edit_review')]
-    public function editReview($id, Request $request, EntityManagerInterface $entityManager): Response
-    {
-        // Use the entity manager to get the Review repository
-        $reviewRepository = $entityManager->getRepository(Review::class);
-        $review = $reviewRepository->find($id);
 
-        if (!$review) {
-            throw $this->createNotFoundException('No review found for id ' . $id);
-        }
-
-        $form = $this->createForm(ReviewFormType::class, $review);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($review);
-            $entityManager->flush();
-
-            // Redirect after successful edit, modify the route as needed
-            return $this->redirectToRoute('app_movies');
-        }
-
-        return $this->render('movies/edit.html.twig', [
-            'form' => $form->createView(),
-            'review' => $review
-        ]);
-    }
-
-
-    #[Route('/movies/add/{movieId}', name: 'add_review', methods: ['GET', 'POST'])]
-    public function addReview(Request $request, EntityManagerInterface $entityManager, $movieId): Response
-    {
-        $movie = $entityManager->getRepository(Movie::class)->find($movieId);
-        if (!$movie) {
-            throw $this->createNotFoundException('Movie not found.');
-        }
-
-        $review = new Review();
-        $form = $this->createForm(ReviewFormType::class, $review);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $review->setMovie($movie); // Associate the review with the movie
-            // If you have user authentication, set the author of the review
-            // $review->setAuthor($this->getUser());
-            $entityManager->persist($review);
-            $entityManager->flush();
-
-            // Redirect to the movie page or another appropriate page
-            return $this->redirectToRoute('app_movies_show-movie', ['id' => $movieId]);
-        }
-
-        return $this->render('movies/add.html.twig', [
-            'form' => $form->createView(),
-            'movie' => $movie,
-        ]);
-    }
 
 
 
