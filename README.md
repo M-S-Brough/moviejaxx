@@ -98,7 +98,4 @@ curl -X POST http://localhost:8000/api/login_check \
 ## 👨‍🎓 Author
 
 **Mark Brough**  
-Student Roll No: 00628924  
 University of Salford  
-Module: Advanced Web Development (AGE929)  
-Module Leader: Stefan Pletschacher
