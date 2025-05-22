@@ -1,0 +1,10 @@
+POST https://localhost:8000/api/reviews
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTM5NDkxMzksImV4cCI6MTcxMzk5MjMzOSwicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoibWFyay5icm91Z2g4NUBnbWFpbC5jb20ifQ.hVOWCMjwvZwDZWi89zHK3Bedg2mTv-Xst9kSp-WVZcT93rtnmCymZvDMcS1IKOzgpHRpG0fcRH8SDkqDiyk5pI-NNR8owxd1zA3pmHPBS3x6e3U9sXCmueGvZVax0RWC07faNoZ6JmNr6zqsK8WxYR4sVgvRIjaHs0kn9U7RqoQf6ohPZnvlIsaFPSjCHPkWs3Kqm4ooaxZA55xztWgnNHXo8cs-CK97N2gQ0zD4r2_NW73G0Wm6zJQcKtHxojufAM6XAUJWXePcEIli9AbvUZNc4emVqgGvsmbkuWZR0NbcVXDDa46khz5InZnsL-vBaEkdmG_yrR0SvYVrR8LPLA
+Content-Type: application/json
+
+{
+
+  "title": "Coppola's Masterful Adaptation of a Mafia Tale......",
+  "reviewText": "Francis Ford Coppola's adaptation of \"The Godfather\" is a remarkable achievement in storytelling and filmmaking. The film weaves a complex narrative of a mafia family's rise and fall with grace and intensity. Marlon Brando's portrayal of Vito Corleone is both intimidating and deeply human, a performance that stands as one of the greatest in film. The film's pacing, dialogue, and atmospheric score contribute to its epic quality. \"The Godfather\" is not just a story about gangsters; it's an exploration of the corrupting nature of power and the bonds of family, making it a timeless classic.",
+  "movieId": 42
+}

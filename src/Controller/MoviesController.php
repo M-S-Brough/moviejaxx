@@ -3,50 +3,55 @@
 namespace App\Controller;
 
 use App\Entity\Movie;
-use App\Entity\Review;
 use App\Form\MovieFormType;
-use App\Form\ReviewFormType;
 use App\Repository\MovieRepository;
+use App\Services\MovieApiService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class MoviesController extends AbstractController
 {
+    // Dependency injection for services and repositories
     private EntityManagerInterface $entityManager;
-    private $movieRepository;
-    private $em;
+    private MovieRepository $movieRepository;
+    private MovieApiService $movieApiService;
+    private LoggerInterface $logger;
 
-    public function __construct(EntityManagerInterface $entityManager, MovieRepository $movieRepository)
+    public function __construct(LoggerInterface $logger, EntityManagerInterface $entityManager, MovieRepository $movieRepository, MovieApiService $movieApiService)
     {
+        // Assigning dependencies to class properties
+        $this->logger = $logger;
         $this->entityManager = $entityManager;
         $this->movieRepository = $movieRepository;
+        $this->movieApiService = $movieApiService;
     }
 
-
+    // Homepage route
     #[Route('/', name: 'app_homepage')]
     public function homepage(): Response
     {
-
         return $this->render('movies/homepage.html.twig', [
             'title' => 'MovieJaxx',
         ]);
     }
 
-    #[Route('//browse/', name: 'app_movies', methods: ['GET'])]
+    // Browse movies route
+    #[Route('/browse/', name: 'app_movies', methods: ['GET'])]
     public function browseMovies(Request $request, PaginatorInterface $paginator): Response
     {
-        // findAll() - SELECT * FROM movies;
-        // find() - SELECT * FROM movies WHERE id = 5;
-        // findBy() - SELECT * FROM movies ORDER BY runningTime DESC (findBy([],['runningTime' => 'DESC']))
+        // Building a query for movie browsing
         $queryBuilder = $this->entityManager->getRepository(Movie::class)
             ->createQueryBuilder('m')
             ->orderBy('m.id', 'ASC'); // Adjust the query as needed
 
+        // Paginating the results
         $pagination = $paginator->paginate(
             $queryBuilder,
             $request->query->getInt('page', 1), // Default to page 1
@@ -57,16 +62,19 @@ class MoviesController extends AbstractController
             'title' => 'Browse',
             'pagination' => $pagination
         ]);
-
     }
+
+    // Create movie route
     #[Route('/movies/create/', name: 'create_movie')]
     public function createMovie(Request $request): Response
     {
+        // Creating a new movie form
         $movie = new Movie();
         $form = $this->createForm(MovieFormType::class, $movie);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            // Handling form submission
             $newMovie = $form->getData(); // Get the Movie entity populated with form data
 
             // Handling multiple reviews
@@ -93,6 +101,7 @@ class MoviesController extends AbstractController
                 $newMovie->setImage('/build/images/' . $newFilmName);
             }
 
+            // Persisting the new movie entity to the database
             $this->entityManager->persist($newMovie);
             $this->entityManager->flush();
 
@@ -106,41 +115,70 @@ class MoviesController extends AbstractController
         ]);
     }
 
-
-
+    // Show movie details route
     #[Route('//browse/{id}', name: 'app_movies_show-movie', methods: ['GET'])]
     public function showMovie($id): Response
     {
-        $repository =$this->entityManager->getRepository(Movie::class);
-
+        $repository = $this->entityManager->getRepository(Movie::class);
         $movies = $repository->find($id);
 
-
         return $this->render('movies/show.html.twig', [
-
-
             'movie' => $movies,
-
         ]);
-
     }
 
+    // Search movies route
     #[Route('/search', name: 'search_movies')]
     public function search(Request $request): Response
     {
+        // Searching for movies based on the query term
         $searchTerm = $request->query->get('query');
         $results = $this->movieRepository->searchMovies($searchTerm);
 
         return $this->render('movies/search_results.html.twig', [
-            'search' => $searchTerm, // Pass the search term to the template
+            'search' => $searchTerm,
             'movies' => $results,
         ]);
     }
 
+    // Search movie via API route
+    #[Route('/search/movie', name: 'search_movie', methods: ['GET'])]
+    public function searchMovie(Request $request): JsonResponse
+    {
+        // Searching for movies via an external API
+        $query = $request->query->get('term');
+        $results = $this->movieApiService->searchMovies($query);
 
+        return $this->json([
+            'results' => $results['results'] ?? []
+        ]);
+    }
 
+    // Get movie details from API route
+    #[Route('/movie/details/{id}', name: 'movie_details', methods: ['GET'])]
+    public function getMovieDetails(int $id): JsonResponse
+    {
+        // Logging the request for movie details
+        $this->logger->info('Fetching details for movie ID: ' . $id);
 
+        // Fetching movie details from an external API
+        $movieDetails = $this->movieApiService->fetchMovieDetailsById($id);
 
+        // Checking for errors in the fetched details
+        if (array_key_exists('error', $movieDetails)) {
+            $this->logger->error('Failed to fetch movie details', [
+                'id' => $id,
+                'error' => $movieDetails['error']
+            ]);
+            return $this->json(['error' => 'Failed to fetch movie details'], Response::HTTP_BAD_REQUEST);
+        }
 
+        // Logging successful fetch of movie details
+        $this->logger->info('Successfully fetched movie details', [
+            'id' => $id,
+            'details' => $movieDetails
+        ]);
 
+        return $this->json($movieDetails);
+    }
 }

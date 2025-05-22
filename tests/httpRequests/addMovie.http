@@ -1,0 +1,13 @@
+POST http://localhost:8000/api/movies
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTM5NDkxMzksImV4cCI6MTcxMzk5MjMzOSwicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoibWFyay5icm91Z2g4NUBnbWFpbC5jb20ifQ.hVOWCMjwvZwDZWi89zHK3Bedg2mTv-Xst9kSp-WVZcT93rtnmCymZvDMcS1IKOzgpHRpG0fcRH8SDkqDiyk5pI-NNR8owxd1zA3pmHPBS3x6e3U9sXCmueGvZVax0RWC07faNoZ6JmNr6zqsK8WxYR4sVgvRIjaHs0kn9U7RqoQf6ohPZnvlIsaFPSjCHPkWs3Kqm4ooaxZA55xztWgnNHXo8cs-CK97N2gQ0zD4r2_NW73G0Wm6zJQcKtHxojufAM6XAUJWXePcEIli9AbvUZNc4emVqgGvsmbkuWZR0NbcVXDDa46khz5InZnsL-vBaEkdmG_yrR0SvYVrR8LPLA
+Content-Type: application/json
+
+{
+  "title": "Test",
+  "releaseYear": 1985,
+  "director": "test",
+  "cast": "cast, cast, cast",
+  "image": "",
+  "runningTime": 217
+
+        }

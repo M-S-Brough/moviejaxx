@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Entity;
 
 use App\Repository\ReviewRepository;
@@ -6,8 +7,7 @@ use DateTime;
 use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\Movie;
-use Symfony\Component\Security\Core\User\UserInterface;
+use JMS\Serializer\Annotation as Serializer;
 
 #[ORM\HasLifecycleCallbacks()]
 #[ORM\Entity(repositoryClass: ReviewRepository::class)]
@@ -16,30 +16,35 @@ class Review
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Serializer\Type("integer")]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Serializer\Type("string")]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Serializer\Type("string")]
     private ?string $reviewText = null;
 
-    // The correct relationship with the Movie entity
     #[ORM\ManyToOne(targetEntity: Movie::class, inversedBy: 'reviews')]
     #[ORM\JoinColumn(name: "movie_id", referencedColumnName: "id")]
+    #[Serializer\Type("App\Entity\Movie")]
+    #[Serializer\MaxDepth(1)]
     private ?Movie $movie;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
+    #[Serializer\Type("App\Entity\User")]
     private ?User $author = null;
 
     #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    #[Serializer\Type("DateTime")]
     private ?DateTimeInterface $createdAt = null;
 
-
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Serializer\Type("DateTime")]
     private ?DateTimeInterface $updatedAt = null;
-
 
     public function getId(): ?int
     {
@@ -54,7 +59,6 @@ class Review
     public function setTitle(string $title): self
     {
         $this->title = $title;
-
         return $this;
     }
 
@@ -66,7 +70,6 @@ class Review
     public function setReviewText(string $reviewText): self
     {
         $this->reviewText = $reviewText;
-
         return $this;
     }
 
@@ -78,7 +81,6 @@ class Review
     public function setMovie(?Movie $movie): self
     {
         $this->movie = $movie;
-
         return $this;
     }
 
@@ -90,7 +92,6 @@ class Review
     public function setAuthor(?User $author): self
     {
         $this->author = $author;
-
         return $this;
     }
 
@@ -102,7 +103,6 @@ class Review
     public function setCreatedAt(DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
@@ -114,7 +114,6 @@ class Review
     public function setUpdatedAt(?DateTimeInterface $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
-
         return $this;
     }
 

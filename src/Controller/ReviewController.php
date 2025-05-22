@@ -13,6 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ReviewController extends AbstractController
 {
+    // Route for the review index page
     #[Route('//show', name: 'app_review')]
     public function index(): Response
     {
@@ -21,21 +22,26 @@ class ReviewController extends AbstractController
         ]);
     }
 
+    // Route for editing a review
     #[Route('/review/edit/{id}', name: 'edit_review')]
     public function editReview($id, Request $request, EntityManagerInterface $entityManager): Response
     {
-        // Use the entity manager to get the Review repository
+        // Retrieve the review entity by its ID
         $reviewRepository = $entityManager->getRepository(Review::class);
         $review = $reviewRepository->find($id);
 
+        // Check if the review exists
         if (!$review) {
             throw $this->createNotFoundException('No review found for id ' . $id);
         }
 
+        // Create a form for editing the review
         $form = $this->createForm(ReviewFormType::class, $review);
         $form->handleRequest($request);
 
+        // Handle form submission
         if ($form->isSubmitted() && $form->isValid()) {
+            // Persist the updated review entity to the database
             $entityManager->persist($review);
             $entityManager->flush();
 
@@ -43,6 +49,7 @@ class ReviewController extends AbstractController
             return $this->redirectToRoute('app_movies');
         }
 
+        // Render the edit review form
         return $this->render('review/edit.html.twig', [
             'form' => $form->createView(),
             'review' => $review,
@@ -50,26 +57,36 @@ class ReviewController extends AbstractController
         ]);
     }
 
+    // Route for adding a new review
     #[Route('/review/add/{movieId}', name: 'add_review', methods: ['GET', 'POST'])]
     public function addReview(Request $request, EntityManagerInterface $entityManager, $movieId): Response
     {
+        // Find the movie entity by its ID
         $movie = $entityManager->getRepository(Movie::class)->find($movieId);
+
+        // Check if the movie exists
         if (!$movie) {
             throw $this->createNotFoundException('Movie not found.');
         }
 
+        // Create a new Review object
         $review = new Review();
+
+        // Create a form for adding a review
         $form = $this->createForm(ReviewFormType::class, $review);
         $form->handleRequest($request);
 
+        // Handle form submission
         if ($form->isSubmitted() && $form->isValid()) {
-            $review->setMovie($movie); // Associate the review with the movie
+            // Associate the review with the movie
+            $review->setMovie($movie);
 
             // Set the author of the review (assuming you have a logged-in user)
             if ($this->getUser()) {
                 $review->setAuthor($this->getUser());
             }
 
+            // Persist the new review entity to the database
             $entityManager->persist($review);
             $entityManager->flush();
 
@@ -77,6 +94,7 @@ class ReviewController extends AbstractController
             return $this->redirectToRoute('app_movies_show-movie', ['id' => $movieId]);
         }
 
+        // Render the add review form
         return $this->render('review/add.html.twig', [
             'form' => $form->createView(),
             'movie' => $movie,

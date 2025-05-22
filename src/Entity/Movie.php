@@ -1,11 +1,12 @@
 <?php
+
 namespace App\Entity;
 
 use App\Repository\MovieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: MovieRepository::class)]
 class Movie
@@ -13,36 +14,44 @@ class Movie
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Serializer\Type("integer")]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Serializer\Type("string")]
     private ?string $title = null;
 
     #[ORM\Column]
+    #[Serializer\Type("integer")]
     private ?int $releaseYear = null;
 
     #[ORM\Column(length: 255)]
+    #[Serializer\Type("string")]
     private ?string $director = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Serializer\Type("string")]
     private ?string $cast = null;
 
     #[ORM\Column(length: 255)]
+    #[Serializer\Type("string")]
     private ?string $image = null;
 
     #[ORM\Column]
+    #[Serializer\Type("integer")]
     private ?int $runningTime = null;
 
     #[ORM\OneToMany(mappedBy: 'movie', targetEntity: Review::class, cascade: ['persist', 'remove'])]
+    #[Serializer\Type("ArrayCollection<App\Entity\Review>")]
+    #[Serializer\MaxDepth(1)]
     private Collection $reviews;
-
-    // Non-persisted field for handling new review data from the form
-    private $newReview;
 
     public function __construct()
     {
         $this->reviews = new ArrayCollection();
     }
+
+    // Getters and setters for all fields with serializer annotations
 
     public function getId(): ?int
     {
@@ -57,7 +66,6 @@ class Movie
     public function setTitle(string $title): self
     {
         $this->title = $title;
-
         return $this;
     }
 
@@ -69,7 +77,6 @@ class Movie
     public function setReleaseYear(int $releaseYear): self
     {
         $this->releaseYear = $releaseYear;
-
         return $this;
     }
 
@@ -81,7 +88,6 @@ class Movie
     public function setDirector(string $director): self
     {
         $this->director = $director;
-
         return $this;
     }
 
@@ -93,7 +99,6 @@ class Movie
     public function setCast(?string $cast): self
     {
         $this->cast = $cast;
-
         return $this;
     }
 
@@ -105,7 +110,6 @@ class Movie
     public function setImage(string $image): self
     {
         $this->image = $image;
-
         return $this;
     }
 
@@ -117,13 +121,9 @@ class Movie
     public function setRunningTime(int $runningTime): self
     {
         $this->runningTime = $runningTime;
-
         return $this;
     }
 
-    /**
-     * @return Collection|Review[]
-     */
     public function getReviews(): Collection
     {
         return $this->reviews;
@@ -135,34 +135,16 @@ class Movie
             $this->reviews[] = $review;
             $review->setMovie($this);
         }
-
         return $this;
     }
 
     public function removeReview(Review $review): self
     {
         if ($this->reviews->removeElement($review)) {
-            // Set the owning side to null (unless already changed)
             if ($review->getMovie() === $this) {
                 $review->setMovie(null);
             }
         }
-
-        return $this;
-    }
-
-    // ... remaining methods ...
-
-    // Getter and setter for the newReview field
-    public function getNewReview(): ?Review
-    {
-        return $this->newReview;
-    }
-
-    public function setNewReview(?Review $newReview): self
-    {
-        $this->newReview = $newReview;
-
         return $this;
     }
 }

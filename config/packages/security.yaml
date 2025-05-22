@@ -10,10 +10,31 @@ security:
                 class: App\Entity\User
                 property: email
     firewalls:
+        login:
+            pattern: ^/api/login
+            stateless: true
+            json_login:
+                check_path: /api/login_check
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        refresh_token:
+            pattern: ^/api/token/refresh
+            stateless: true
+            refresh_jwt:
+                # The corresponding route has been declared by the recipe
+                check_path: /api/token/refresh
+
+
+        api:
+            pattern: ^/api
+            stateless: true
+            jwt: ~
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
+            pattern: ^/(?!api).*
             lazy: true
             provider: app_user_provider
             custom_authenticator: App\Security\LoginFormAuthenticator
@@ -37,8 +58,14 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+         - { path: ^/api/doc, roles: IS_AUTHENTICATED_ANONYMOUSLY }
          - { path: ^/admin, roles: ROLE_ADMIN }
          - { path: ^/profile, roles: ROLE_USER }
+         - { path: ^/api/login, roles: PUBLIC_ACCESS }
+         - { path: ^/api/(login|token/refresh), roles: PUBLIC_ACCESS }
+         - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
+
+
 
 when@test:
     security:

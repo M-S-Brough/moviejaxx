@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>{{ movie.title }}</h1>
+    <div>
+        <p>Release Year: {{ movie.release_date | date('Y') }}</p>
+        <p>Rating: {{ movie.vote_average }}/10</p>
+        <p>{{ movie.overview }}</p>
+        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="Poster for {{ movie.title }}">
+    </div>
+{% endblock %}
+

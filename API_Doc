@@ -1,0 +1,984 @@
+
+### API Documentation for POST /api/login_check
+
+#### Endpoint Information
+- **URL**: `/api/login_check`
+- **Method**: POST
+- **Authorization**: None required for this endpoint as it's used to obtain the token.
+
+#### Description
+This endpoint authenticates users by their username and password, returning a JWT token if the credentials are valid. The token can be used for authenticated requests to other endpoints.
+
+#### Request Headers
+- `Content-Type`: `application/json`
+
+#### Request Body
+- **username** [string]: The user's email address registered with the system.
+- **password** [string]: The user's password.
+
+#### Required Body JSON
+```json
+{
+  "username": "user@example.com",
+  "password": "your_password"
+}
+```
+
+#### Success Response
+- **Code**: `200 OK`
+- **Content**:
+  ```json
+  {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJzQXQzIgJH3KwI8SqRTrZM3A"
+  }
+  ```
+
+#### Error Response
+- **Code**: `401 Unauthorized`
+  ```json
+  {
+    "error": "Invalid credentials"
+  }
+  ```
+
+#### Sample Call
+- Using cURL:
+  ```bash
+  curl -X POST "http://localhost:8000/api/login_check" -H "Content-Type: application/json" -d '{"username": "user@example.com", "password": "your_password"}'
+  ```
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+### API Documentation for POST /api/token/refresh
+
+#### Endpoint Information
+- **URL**: `/api/token/refresh`
+- **Method**: POST
+- **Authorization**: Refresh token required in the request body.
+
+#### Description
+This endpoint refreshes the JWT authentication token to extend the user session without needing to re-enter credentials. It requires a valid refresh token that is typically obtained during the login process.
+
+#### Request Headers
+- `Content-Type`: `application/json`
+
+#### Request Body
+- **refresh_token** [string]: The refresh token provided to the user during authentication.
+
+#### Required Body JSON
+```json
+{
+  "refresh_token": "Your_Refresh_Token_Here"
+}
+```
+
+#### Success Response
+- **Code**: `200 OK`
+- **Content**:
+  ```json
+  {
+    "token": "new_access_token_value"
+  }
+  ```
+
+#### Error Response
+- **Code**: `401 Unauthorized`
+  ```json
+  {
+    "error": "Invalid refresh token"
+  }
+  ```
+
+#### Sample Call
+- Using cURL:
+  ```bash
+  curl -X POST "http://localhost:8000/api/token/refresh" -H "Content-Type: application/json" -d '{"refresh_token": "Your_Refresh_Token_Here"}'
+  ```
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+API Documentation for POST /api/movies
+Endpoint Information
+URL: /api/movies
+Method: POST
+Authorization: Bearer Token required
+Description
+This endpoint is used to create a new movie entry in the system. It requires an authenticated user with a valid JWT token to access.
+
+Request Headers
+Authorization: Bearer {access_token}
+Content-Type: application/json
+Request Body
+The following JSON structure outlines the expected fields for the movie entry:
+
+json
+Copy code
+{
+  "title": "Movie Title",
+  "releaseYear": 1985,
+  "director": "Director Name",
+  "cast": "List of cast members",
+  "image": "URL to the image of the movie",
+  "runningTime": 120
+}
+Required JSON Body Fields
+title [string]: The title of the movie.
+releaseYear [integer]: The release year of the movie.
+director [string]: The director of the movie.
+cast [string]: A comma-separated string of cast members.
+image [string]: A URL pointing to an image for the movie. It can be left empty ("").
+runningTime [integer]: The running time of the movie in minutes.
+Success Response
+Code: 201 Created
+Content:
+json
+Copy code
+{
+  "id": 50,
+  "title": "Movie Title",
+  "release_year": 1985,
+  "director": "Director Name",
+  "cast": ["cast member 1", "cast member 2"],
+  "image": "URL to the image of the movie",
+  "running_time": 120,
+  "reviews": []
+}
+Error Response
+Code: 400 Bad Request
+json
+Copy code
+{
+  "error": "Bad data format or validation error message"
+}
+Code: 401 Unauthorized
+json
+Copy code
+{
+  "error": "Invalid or expired token"
+}
+Sample Call
+Using cURL:
+bash
+Copy code
+curl -X POST "http://localhost:8000/api/movies" -H "Authorization: Bearer {your_token_here}" -H "Content-Type: application/json" -d '{"title": "Movie Title", "releaseYear": 1985, "director": "Director Name", "cast": "List of cast members", "image": "URL to the image of the movie", "runningTime": 120}'
+Notes
+The image field is optional and can be submitted as an empty string if no image URL is available.
+Make sure that the provided JWT token has not expired and has the appropriate permissions to add a movie.
+This request will return the newly created movie object, including its generated ID.
+
+----------------------------------------------------------------------------------------------------------
+
+
+## API Documentation for POST /api/reviews
+
+### Endpoint Information
+
+- **URL**: `POST https://localhost:8000/api/reviews`
+- **Authorization**: Bearer Token required
+- **Content-Type**: application/json
+
+### Description
+
+This endpoint is used to create a new movie review in the system. It requires an authenticated user with a valid JWT token to access.
+
+### Request Headers
+
+- **Authorization**: Bearer {access_token}
+- **Content-Type**: application/json
+
+### Request Body
+
+The following JSON structure outlines the expected fields for the movie review:
+
+```json
+{
+  "title": "Coppola's Masterful Adaptation of a Mafia Tale...",
+  "reviewText": "Francis Ford Coppola's adaptation of \"The Godfather\" is a remarkable achievement in storytelling and filmmaking. The film weaves a complex narrative of a mafia family's rise and fall with grace and intensity. Marlon Brando's portrayal of Vito Corleone is both intimidating and deeply human, a performance that stands as one of the greatest in film. The film's pacing, dialogue, and atmospheric score contribute to its epic quality. \"The Godfather\" is not just a story about gangsters; it's an exploration of the corrupting nature of power and the bonds of family, making it a timeless classic.",
+  "movieId": 42
+}
+```
+
+#### Required JSON Body Fields
+
+- **title** [string]: The title of the review.
+- **reviewText** [string]: The text of the review.
+- **movieId** [integer]: The ID of the movie being reviewed.
+
+### Success Response
+
+- **Code**: 201 Created
+- **Content**:
+
+```json
+{
+  "id": 37,
+  "title": "Coppola's Masterful Adaptation of a Mafia Tale...",
+  "review_text": "Francis Ford Coppola's adaptation of \"The Godfather\" is a remarkable achievement in storytelling and filmmaking. The film weaves a complex narrative of a mafia family's rise and fall with grace and intensity. Marlon Brando's portrayal of Vito Corleone is both intimidating and deeply human, a performance that stands as one of the greatest in film. The film's pacing, dialogue, and atmospheric score contribute to its epic quality. \"The Godfather\" is not just a story about gangsters; it's an exploration of the corrupting nature of power and the bonds of family, making it a timeless classic.",
+  "movie": {
+    "id": 42,
+    "title": "The Godfather",
+    "release_year": 1972,
+    "director": "Francis Ford Coppola",
+    "cast": "Marlon Brando, Al Pacino, James Caan",
+    "image": "/build/images/6573294c159f9.jpg",
+    "running_time": 175,
+    "reviews": [
+      {
+        "id": 28,
+        "title": "A Timeless Saga of Power and Morality",
+        "review_text": "\"The Godfather\" is a cinematic triumph, a film that transcends its mafia theme to explore universal themes of power, morality, and family. Coppola's direction is impeccable, creating a film that is both grand in scale and intimate in detail. The performances are outstanding, with Marlon Brando and Al Pacino delivering some of their finest work. The film's cinematography, with its rich use of shadows and light, adds to the dramatic and somber tone. \"The Godfather\" is more than a crime film; it's a profound study of character and a portrait of American life.",
+        "author": {
+          "id": 54,
+          "email": "movie@movie.com",
+          "roles": [],
+          "password": "...",
+          "first_name": "Movie",
+          "last_name": "Man",
+          "username": "movieMan"
+        },
+        "created_at": "2023-12-08T14:42:34+01:00"
+      },
+      {
+        "id": 35,
+        "title": "Coppola's Masterful Adaptation of a Mafia Tale...",
+        "review_text": "...",
+        "author": {
+          "id": 1,
+          "email": "mark.brough85@gmail.com",
+          "roles": [],
+          "password": "...",
+          "first_name": "Mark",
+          "last_name": "Brough",
+          "username": "markBrough"
+        },
+        "created_at": "2024-04-21T22:04:10+02:00"
+      }
+    ]
+  },
+  "author": {
+    "id": 1,
+    "email": "mark.brough85@gmail.com",
+    "roles": [],
+    "password": "...",
+    "first_name": "Mark",
+    "last_name": "Brough",
+    "username": "markBrough"
+  },
+  "created_at": "2024-04-24T12:08:04+02:00"
+}
+```
+
+### Error Response
+
+- **Code**: 400 Bad Request
+
+```json
+{
+  "error": "Bad data format or validation error message"
+}
+```
+
+- **Code**: 401 Unauthorized
+
+```json
+{
+  "error": "Invalid or expired token"
+}
+```
+
+### Sample Call
+
+Using cURL:
+
+```bash
+curl -X POST "https://localhost:8000/api/reviews" -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTM5NDkxMzksImV4cCI6MTcxMzk5MjMzOSwicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoibWFyay5icm91Z2g4NUBnbWFpbC5jb20ifQ.hVOWCMjwvZwDZWi89zHK3Bedg2mTv-Xst9kSp-WVZcT93rtnmCymZvDMcS1IKOzgpHRpG0fcRH8SDkqDiyk5pI-NNR8owxd1zA3pmHPBS3x6e3U9sXCmueGvZVax0RWC07faNoZ6JmNr6zqsK8WxYR4sVgvRIjaHs0kn9U7RqoQf6ohPZnvlIsaFPSjCHPkWs3Kqm4ooaxZA55xztWgnNHXo8cs-CK97N2gQ0zD4r2_NW73G0Wm6zJQcKtHxojufAM6XAUJWXePcEIli9AbvUZNc4emVqgGvsmbkuWZR0NbcVXDDa46khz5InZnsL-vBaEkdmG_yrR0SvYVrR8LPLA" -H
+
+
+
+----------------------------------------------------------------------------------------
+
+
+## API Documentation for PUT /api/movies/{id}
+
+### Endpoint Information
+
+- **URL**: `PUT https://localhost:8000/api/movies/{id}`
+- **Authorization**: Bearer Token required
+- **Content-Type**: application/json
+
+### Description
+
+This endpoint is used to update an existing movie entry in the system. It requires an authenticated user with a valid JWT token to access.
+
+### Request Headers
+
+- **Authorization**: Bearer {access_token}
+- **Content-Type**: application/json
+
+### Request Body
+
+The following JSON structure outlines the fields that can be updated for the movie:
+
+```json
+{
+  "title": "Change title",
+  "releaseYear": 1985,
+  "director": "test",
+  "cast": "cast, cast, cast",
+  "image": "",
+  "runningTime": 217
+}
+```
+
+#### Allowed JSON Body Fields
+
+- **title** [string]: The updated title of the movie.
+- **releaseYear** [integer]: The updated release year of the movie.
+- **director** [string]: The updated director of the movie.
+- **cast** [string]: The updated cast list of the movie (comma-separated).
+- **image** [string]: The updated URL to the image for the movie. It can be left empty ("").
+- **runningTime** [integer]: The updated running time of the movie in minutes.
+
+### Success Response
+
+- **Code**: 200 OK
+- **Content**:
+
+```json
+{
+  "id": 50,
+  "title": "Change title",
+  "release_year": 1985,
+  "director": "test",
+  "cast": "cast, cast, cast",
+  "image": "",
+  "running_time": 217,
+  "reviews": []
+}
+```
+
+### Error Response
+
+- **Code**: 400 Bad Request
+
+```json
+{
+  "error": "Bad data format or validation error message"
+}
+```
+
+- **Code**: 401 Unauthorized
+
+```json
+{
+  "error": "Invalid or expired token"
+}
+```
+
+### Sample Call
+
+Using cURL:
+
+```bash
+curl -X PUT "https://localhost:8000/api/movies/50" -H "Authorization: Bearer {your_token_here}" -H "Content-Type: application/json" -d '{"title": "Change title", "releaseYear": 1985, "director": "test", "cast": "cast, cast, cast", "image": "", "runningTime": 217}'
+```
+
+------------------------------------------------------------------------------------------------------
+
+
+
+## API Documentation for PUT /api/reviews/{id}
+
+### Endpoint Information
+
+- **URL**: `PUT https://localhost:8000/api/reviews/{id}`
+- **Authorization**: Bearer Token required
+- **Content-Type**: application/json
+
+### Description
+
+This endpoint is used to update an existing movie review entry in the system. It requires an authenticated user with a valid JWT token to access.
+
+### Request Headers
+
+- **Authorization**: Bearer {access_token}
+- **Content-Type**: application/json
+
+### Request Body
+
+The following JSON structure outlines the fields that can be updated for the review:
+
+```json
+{
+  "title": "Coppola's Masterful Adaptation of a Mafia Tale",
+  "review_text": "Francis Ford Coppola's adaptation of \"The Godfather\" is a remarkable achievement in storytelling and filmmaking. The film weaves a complex narrative of a mafia family's rise and fall with grace and intensity. Marlon Brando's portrayal of Vito Corleone is both intimidating and deeply human, a performance that stands as one of the greatest in film. The film's pacing, dialogue, and atmospheric score contribute to its epic quality. \"The Godfather\" is not just a story about gangsters; it's an exploration of the corrupting nature of power and the bonds of family, making it a timeless classic.",
+  "movieId": 42
+}
+```
+
+#### Allowed JSON Body Fields
+
+- **title** [string]: The updated title of the review.
+- **review_text** [string]: The updated text of the review.
+- **movieId** [integer]: The ID of the movie associated with the review.
+
+### Success Response
+
+- **Code**: 200 OK
+- **Content**:
+
+```json
+{
+  "id": 37,
+  "title": "Coppola's Masterful Adaptation of a Mafia Tale",
+  "review_text": "Francis Ford Coppola's adaptation of \"The Godfather\" is a remarkable achievement in storytelling and filmmaking. The film weaves a complex narrative of a mafia family's rise and fall with grace and intensity. Marlon Brando's portrayal of Vito Corleone is both intimidating and deeply human, a performance that stands as one of the greatest in film. The film's pacing, dialogue, and atmospheric score contribute to its epic quality. \"The Godfather\" is not just a story about gangsters; it's an exploration of the corrupting nature of power and the bonds of family, making it a timeless classic.",
+  "movie": {
+    "id": 42,
+    "title": "The Godfather",
+    "release_year": 1972,
+    "director": "Francis Ford Coppola",
+    "cast": "Marlon Brando, Al Pacino, James Caan",
+    "image": "/build/images/6573294c159f9.jpg",
+    "running_time": 175,
+    "reviews": [
+      {
+        "id": 28,
+        "title": "A Timeless Saga of Power and Morality",
+        "review_text": "\"The Godfather\" is a cinematic triumph, a film that transcends its mafia theme to explore universal themes of power, morality, and family. Coppola's direction is impeccable, creating a film that is both grand in scale and intimate in detail. The performances are outstanding, with Marlon Brando and Al Pacino delivering some of their finest work. The film's cinematography, with its rich use of shadows and light, adds to the dramatic and somber tone. \"The Godfather\" is more than a crime film; it's a profound study of character and a portrait of American life.",
+        "author": {
+          "id": 54,
+          "email": "movie@movie.com",
+          "roles": [],
+          "password": "$2y$13$jy0Q6Na590HEEWVPGM73zOtDmGLARmwyYd8UPB8E2dMQm6MjXGcae",
+          "first_name": "Movie",
+          "last_name": "Man",
+          "username": "movieMan"
+        },
+        "created_at": "2023-12-08T14:42:34+01:00"
+      },
+      {
+        "id": 35,
+        "title": "Coppola's Masterful Adaptation of a Mafia Tale......",
+        "review_text": "Francis Ford Coppola's adaptation of \"The Godfather\" is a remarkable achievement in storytelling and filmmaking. The film weaves a complex narrative of a mafia family's rise and fall with grace and intensity. Marlon Brando's portrayal of Vito Corleone is both intimidating and deeply human, a performance that stands as one of the greatest in film. The film's pacing, dialogue, and atmospheric score contribute to its epic quality. \"The Godfather\" is not just a story about gangsters; it's an exploration of the corrupting nature of power and the bonds of family, making it a timeless classic.",
+        "author": {
+          "id": 1,
+          "email": "mark.brough85@gmail.com",
+          "roles": [],
+          "password": "$2y$13$5kiCqFHwz5udM7QWq9TJVuCKFfHbsvfcDeoTzh3r.CCpVwYqNwyJS",
+          "first_name": "Mark",
+          "last_name": "Brough",
+          "username": "markBrough"
+        },
+        "created_at": "2024-04-21T22:04:10+02:00"
+      }
+    ]
+  },
+  "author": {
+    "id": 1,
+    "email": "mark.brough85@gmail.com",
+    "roles": [],
+    "password": "$2y$13$5kiCqFHwz5udM7QWq9TJVuCKFfHbsvfcDeoTzh3r.CCpVwYqNwyJS",
+    "first_name": "Mark",
+    "last_name": "Brough",
+    "username": "markBrough"
+  },
+  "created_at": "2024-04-24T12:08:04+02:00",
+  "updated_at": "2024-04-24T12:22:14+02:00"
+}
+```
+
+### Error Response
+
+- **Code**: 400 Bad Request
+
+```json
+{
+
+
+ "error": "Bad data format or validation error message"
+}
+```
+
+- **Code**: 401 Unauthorized
+
+```json
+{
+  "error": "Invalid or expired token"
+}
+```
+
+### Sample Call
+
+Using cURL:
+
+```bash
+curl -X PUT "https://localhost:8000/api/reviews/37" -H "Authorization: Bearer {your_token_here}" -H "Content-Type: application/json" -d '{"title": "Coppola's Masterful Adaptation of a Mafia Tale", "review_text": "Francis Ford Coppola\'s adaptation of \"The Godfather\" is a remarkable achievement in storytelling and filmmaking. The film weaves a complex narrative of a mafia family\'s rise and fall with grace and intensity. Marlon Brando\'s portrayal of Vito Corleone is both intimidating and deeply human, a performance that stands as one of the greatest in film. The film\'s pacing, dialogue, and atmospheric score contribute to its epic quality. \"The Godfather\" is not just a story about gangsters; it\'s an exploration of the corrupting nature of power and the bonds of family, making it a timeless classic.", "movieId": 42}'
+```
+
+-----------------------------------------------------------------------------------------------------
+
+
+
+## API Documentation for DELETE /api/movies/{id}
+
+### Endpoint Information
+
+- **URL**: `DELETE https://localhost:8000/api/movies/{id}`
+- **Authorization**: Bearer Token required
+- **Accept**: application/json
+
+### Description
+
+This endpoint is used to delete an existing movie entry from the system. It requires an authenticated user with a valid JWT token to access.
+
+### Request Headers
+
+- **Authorization**: Bearer {access_token}
+- **Accept**: application/json
+
+### Path Parameters
+
+- **id** [integer]: The ID of the movie to be deleted.
+
+### Success Response
+
+- **Code**: 200 OK
+- **Content**:
+
+```json
+{
+  "message": "Movie deleted"
+}
+```
+
+### Error Response
+
+- **Code**: 401 Unauthorized
+
+```json
+{
+  "error": "Invalid or expired token"
+}
+```
+
+### Sample Call
+
+Using cURL:
+
+```bash
+curl -X DELETE "https://localhost:8000/api/movies/50" -H "Authorization: Bearer {your_token_here}" -H "Accept: application/json"
+```
+
+----------------------------------------------------------------------------------------------------
+
+
+## API Documentation for DELETE /api/reviews/{id}
+
+### Endpoint Information
+
+- **URL**: `DELETE https://localhost:8000/api/reviews/{id}`
+- **Authorization**: Bearer Token required
+- **Accept**: application/json
+
+### Description
+
+This endpoint is used to delete an existing review entry from the system. It requires an authenticated user with a valid JWT token to access.
+
+### Request Headers
+
+- **Authorization**: Bearer {access_token}
+- **Accept**: application/json
+
+### Path Parameters
+
+- **id** [integer]: The ID of the review to be deleted.
+
+### Success Response
+
+- **Code**: 200 OK
+- **Content**:
+
+```json
+{
+  "message": "Review deleted successfully"
+}
+```
+
+### Error Response
+
+- **Code**: 401 Unauthorized
+
+```json
+{
+  "error": "Invalid or expired token"
+}
+```
+
+### Sample Call
+
+Using cURL:
+
+```bash
+curl -X DELETE "https://localhost:8000/api/reviews/35" -H "Authorization: Bearer {your_token_here}" -H "Accept: application/json"
+```
+
+--------------------------------------------------------------------------------------------------
+
+
+## API Documentation for GET /api/movies
+
+### Endpoint Information
+
+- **URL**: `GET http://localhost:8000/api/movies`
+- **Authorization**: Bearer Token required
+- **Accept**: application/json
+
+### Description
+
+This endpoint is used to retrieve a list of movies from the system. It requires an authenticated user with a valid JWT token to access.
+
+### Request Headers
+
+- **Authorization**: Bearer {access_token}
+- **Accept**: application/json
+
+### Success Response
+
+- **Code**: 200 OK
+- **Content**: An array of movie objects, each containing the following properties:
+
+```json
+{
+  "id": 1,
+  "title": "Back to the Future",
+  "release_year": 1985,
+  "director": "Robert Zemeckis",
+  "cast": "Michael J. Fox, Christopher Lloyd",
+  "image": "build/images/back_to_the_future.bf3a5b97.jpg",
+  "running_time": 116,
+  "reviews": [
+    {
+      "id": 7,
+      "title": "So good in so many ways and then some more!!!!!",
+      "review_text": "I love Back to the Future. While having a typical 80s feel to it, which I like, I love how fun, irresistible and original the film is...",
+      "author": {
+        "id": 2,
+        "email": "test@test.com",
+        "roles": [],
+        "first_name": "test",
+        "last_name": "test",
+        "username": "tester"
+      },
+      "created_at": "2023-12-07T13:00:30+01:00"
+    },
+    {
+      "id": 8,
+      "title": "A Time -Travelling Classic",
+      "review_text": "Zemeckis's 'Back To The Future' trilogy has been a childhood favourite for a long time...",
+      "author": {
+        "id": 1,
+        "email": "mark.brough85@gmail.com",
+        "roles": [],
+        "first_name": "Mark",
+        "last_name": "Brough",
+        "username": "markBrough"
+      },
+      "created_at": "2023-12-07T13:00:30+01:00"
+    }
+  ]
+}
+```
+
+### Error Response
+
+- **Code**: 401 Unauthorized
+
+```json
+{
+  "error": "Invalid or expired token"
+}
+```
+
+### Sample Call
+
+Using cURL:
+
+```bash
+curl -X GET "http://localhost:8000/api/movies" -H "Authorization: Bearer {your_token_here}" -H "Accept: application/json"
+```
+
+--------------------------------------------------------------------------------------------------
+
+
+
+## API Documentation for GET /api/movies/{id}
+
+### Endpoint Information
+
+- **URL**: `GET http://localhost:8000/api/movies/{id}`
+- **Authorization**: Bearer Token required
+- **Accept**: application/json
+
+### Description
+
+This endpoint is used to retrieve details of a specific movie identified by its unique ID. It requires an authenticated user with a valid JWT token to access.
+
+### Request Headers
+
+- **Authorization**: Bearer {access_token}
+- **Accept**: application/json
+
+### Path Parameters
+
+- **id** (integer): The unique identifier of the movie to retrieve.
+
+### Success Response
+
+- **Code**: 200 OK
+- **Content**: A JSON object containing details of the requested movie, including its title, release year, director, cast, image URL, running time, and an array of reviews.
+
+```json
+{
+  "id": 1,
+  "title": "Back to the Future",
+  "release_year": 1985,
+  "director": "Robert Zemeckis",
+  "cast": "Michael J. Fox, Christopher Lloyd",
+  "image": "build/images/back_to_the_future.bf3a5b97.jpg",
+  "running_time": 116,
+  "reviews": [
+    {
+      "id": 7,
+      "title": "So good in so many ways and then some more!!!!!",
+      "review_text": "I love Back to the Future. While having a typical 80s feel to it, which I like...",
+      "author": {
+        "id": 2,
+        "email": "test@test.com",
+        "first_name": "test",
+        "last_name": "test",
+        "username": "tester"
+      },
+      "created_at": "2023-12-07T13:00:30+01:00",
+      "updated_at": "2024-04-18T17:58:21+02:00"
+    },
+    {
+      "id": 8,
+      "title": "A Time -Travelling Classic",
+      "review_text": "Zemeckis's 'Back To The Future' trilogy has been a childhood favourite for a long time...",
+      "author": {
+        "id": 1,
+        "email": "mark.brough85@gmail.com",
+        "first_name": "Mark",
+        "last_name": "Brough",
+        "username": "markBrough"
+      },
+      "created_at": "2023-12-07T13:00:30+01:00"
+    }
+  ]
+}
+```
+
+### Error Response
+
+- **Code**: 401 Unauthorized
+
+```json
+{
+  "error": "Invalid or expired token"
+}
+```
+
+- **Code**: 404 Not Found
+
+```json
+{
+  "error": "Movie not found"
+}
+```
+
+### Sample Call
+
+Using cURL:
+
+```bash
+curl -X GET "http://localhost:8000/api/movies/{id}" -H "Authorization: Bearer {your_token_here}" -H "Accept: application/json"
+```
+
+----------------------------------------------------------------------------------------------------
+
+
+## API Documentation for GET /api/reviews
+
+### Endpoint Information
+
+- **URL**: `GET http://localhost:8000/api/reviews`
+- **Authorization**: Bearer Token required
+- **Accept**: application/json
+
+### Description
+
+This endpoint is used to retrieve a list of all reviews for all movies. It requires an authenticated user with a valid JWT token to access.
+
+### Request Headers
+
+- **Authorization**: Bearer {access_token}
+- **Accept**: application/json
+
+### Success Response
+
+- **Code**: 200 OK
+- **Content**: A JSON array containing details of reviews, each including its title, review text, author, and creation date.
+
+```json
+[
+  {
+    "id": 1,
+    "title": "Who doesn't love the Avengers",
+    "review_text": "Not as good as Infinity war pacing-wise, but is a satisfying ending to the saga...",
+    "author": {
+      "id": 1,
+      "email": "mark.brough85@gmail.com",
+      "first_name": "Mark",
+      "last_name": "Brough",
+      "username": "markBrough"
+    },
+    "created_at": "2023-12-07T13:00:30+01:00"
+  },
+  {
+    "id": 2,
+    "title": "Time Travel Movies Are Always Brilliant",
+    "review_text": "Time travel movies never disappoint-that is because the concept of time travel is a very interesting one...",
+    "author": {
+      "id": 2,
+      "email": "test@test.com",
+      "first_name": "test",
+      "last_name": "test",
+      "username": "tester"
+    },
+    "created_at": "2023-12-07T13:00:30+01:00"
+  },
+  {
+    "id": 3,
+    "title": "A Batman Of Shakesperean Proportions",
+    "review_text": "Dark, yes, complex, ambitious. Christopher Nolan and his co-writer Jonathan Nolan deserve a standing ovation...",
+    "author": {
+      "id": 1,
+      "email": "mark.brough85@gmail.com",
+      "first_name": "Mark",
+      "last_name": "Brough",
+      "username": "markBrough"
+    },
+    "created_at": "2023-12-07T13:00:30+01:00"
+  },
+  // Additional reviews...
+]
+```
+
+### Error Response
+
+- **Code**: 401 Unauthorized
+
+```json
+{
+  "error": "Invalid or expired token"
+}
+```
+
+### Sample Call
+
+Using cURL:
+
+```bash
+curl -X GET "http://localhost:8000/api/reviews" -H "Authorization: Bearer {your_token_here}" -H "Accept: application/json"
+```
+
+---------------------------------------------------------------------------------------------------
+
+
+## API Documentation for GET /api/reviews/16
+
+### Endpoint Information
+
+- **URL**: `GET http://localhost:8000/api/reviews/16`
+- **Authorization**: Bearer Token required
+- **Accept**: application/json
+
+### Description
+
+This endpoint is used to retrieve all reviews for a specific movie identified by its ID. It requires an authenticated user with a valid JWT token to access.
+
+### Request Headers
+
+- **Authorization**: Bearer {access_token}
+- **Accept**: application/json
+
+### Success Response
+
+- **Code**: 200 OK
+- **Content**: An array of JSON objects, each containing details of a review, including its title, review text, author, and creation date.
+
+```json
+[
+  {
+    "id": 15,
+    "title": "A Dark and Thrilling Masterpiece",
+    "review_text": "\"The Dark Knight\" redefines the possibilities of the superhero genre...",
+    "author": {
+      "id": 54,
+      "email": "movie@movie.com",
+      "first_name": "Movie",
+      "last_name": "Man",
+      "username": "movieMan"
+    },
+    "created_at": "2023-12-07T14:32:06+01:00"
+  },
+  {
+    "id": 17,
+    "title": "Nolan's Visionary Take on Batman",
+    "review_text": "\"The Dark Knight\" stands out as a pinnacle of superhero storytelling...",
+    "author": {
+      "id": 53,
+      "email": "clbrough@email.com",
+      "first_name": "Claire",
+      "last_name": "Brough",
+      "username": "barbie_girl"
+    },
+    "created_at": "2023-12-07T14:34:24+01:00"
+  },
+  {
+    "id": 32,
+    "title": "Hello again",
+    "review_text": "Hello again",
+    "author": {
+      "id": 1,
+      "email": "mark.brough85@gmail.com",
+      "first_name": "Mark",
+      "last_name": "Brough",
+      "username": "markBrough"
+    },
+    "created_at": "2024-01-09T10:48:23+01:00",
+    "updated_at": "2024-01-09T10:48:41+01:00"
+  }
+]
+```
+
+### Error Response
+
+- **Code**: 401 Unauthorized
+
+```json
+{
+  "error": "Invalid or expired token"
+}
+```
+
+### Sample Call
+
+Using cURL:
+
+```bash
+curl -X GET "http://localhost:8000/api/reviews/16" -H "Authorization: Bearer {your_token_here}" -H "Accept: application/json"
+```
+
+--------------------------------------------------------------------------------------------------
+

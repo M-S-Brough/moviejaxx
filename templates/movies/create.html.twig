@@ -1,31 +1,168 @@
-{% extends "./base.html.twig" %}
+{% extends 'base.html.twig' %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .ui-autocomplete {
+            background-color: var(--chic-dark-accent);
+            border: 1px solid var(--chic-muted);
+            color: var(--chic-text-color);
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-height: 400px;
+            padding: 0.5rem 0;
+            border-radius: 0.25rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,.4);
+            z-index: 1050;
+        }
+        .ui-menu-item-wrapper {
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid var(--chic-dark);
+        }
+        .ui-menu-item-wrapper.ui-state-active,
+        .ui-menu-item-wrapper.ui-state-focus {
+            background-color: var(--chic-highlight);
+            color: var(--chic-dark);
+        }
+    </style>
+{% endblock %}
+
+{% block title %}Create Movie{% endblock %}
 
 {% block body %}
-    <div class="w-4/5 m-auto pt-40">
-        <h1 class="text-6xl text-center pb-12">
-            Create Movie
-        </h1>
-
-        <div class="form-container">
-            {{ form_start(form) }}
-
-            {{ form_widget(form) }}
-            <button
-                    type="submit"
-                    class="btn btn-outline-light me-2">
-                Add Movie
-            </button>
-            {{ form_end(form) }}
-
-
+    <div class="container">
+        <h1>Create New Movie</h1>
+        <div class="form-group">
+            <label for="movie-search">Search Movie:</label>
+            <input type="text" id="movie-search" class="form-control" placeholder="Type to search...">
         </div>
 
-
-
-
+        {{ form_start(form) }}
+        <div class="form-group">
+            {{ form_label(form.title) }}
+            {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.title) }}
+        </div>
+        <div class="form-group">
+            {{ form_label(form.releaseYear) }}
+            {{ form_widget(form.releaseYear, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.releaseYear) }}
+        </div>
+        <div class="form-group">
+            {{ form_label(form.director) }}
+            {{ form_widget(form.director, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.director) }}
+        </div>
+        <div class="form-group">
+            {{ form_label(form.cast) }}
+            {{ form_widget(form.cast, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.cast) }}
+        </div>
+        <div class="form-group">
+            {{ form_label(form.runningTime) }}
+            {{ form_widget(form.runningTime, {'attr': {'type': 'number', 'class': 'form-control'}}) }}
+            {{ form_errors(form.runningTime) }}
+        </div>
+        <div class="form-group">
+            {{ form_label(form.image) }}
+            {{ form_widget(form.image, {'attr': {'class': 'form-control-file'}}) }}
+            <img id="image-preview" src="#" alt="Movie Poster Preview" style="display: none; max-width: 100%; height: auto;">
+            {{ form_errors(form.image) }}
+        </div>
+        <button type="submit" class="btn btn-primary">Create Movie</button>
         {{ form_end(form) }}
     </div>
+{% endblock %}
 
+
+{% block javascripts %}
+    {{ parent() }}
+    <!-- Include jQuery and jQuery UI -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <!-- JavaScript code for fetching movie details and autocomplete functionality -->
+    <script>
+        // Function to fetch movie details by ID
+        function fetchMovieDetails(movieId) {
+            // Construct the URL for fetching movie details using Symfony's path() function
+            var url = '{{ path("movie_details", {"id": "__id__"}) }}'.replace('__id__', movieId);
+
+            // AJAX request to fetch movie details
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(response) {
+                    // Populate form fields with movie details from the API response
+                    $('#{{ form.title.vars.id }}').val(response.title);
+                    // Extract the year from the release date if the full date is returned
+                    $('#{{ form.releaseYear.vars.id }}').val(response.release_date.substring(0, 4));
+                    $('#{{ form.director.vars.id }}').val(response.director);
+                    $('#{{ form.runningTime.vars.id }}').val(response.runtime);
+
+                    // Populate the cast field with cast names separated by commas
+                    if(response.cast) {
+                        var castNames = response.cast.map(function(cast) { return cast.name; });
+                        $('#{{ form.cast.vars.id }}').val(castNames.join(', '));
+                    }
+
+                    // Display the movie poster if available
+                    if(response.poster_path) {
+                        $('#image-preview').attr('src', 'https://image.tmdb.org/t/p/w500' + response.poster_path);
+                        $('#image-preview').show();
+                    }
+                },
+                error: function(error) {
+                    // Log any errors to the console
+                    console.log('Error fetching movie details:', error);
+                }
+            });
+        }
+
+        // Document ready function for initializing autocomplete functionality
+        $(document).ready(function() {
+            // Initialize jQuery UI autocomplete for the movie search input field
+            $('#movie-search').autocomplete({
+                // AJAX source for movie search suggestions
+                source: function(request, response) {
+                    // AJAX request to search movies based on input term
+                    $.ajax({
+                        url: '{{ path("search_movie") }}',
+                        dataType: 'json',
+                        data: { term: request.term },
+                        success: function(data) {
+                            // Format search results for autocomplete
+                            response($.map(data.results, function(item) {
+                                return {
+                                    label: item.title + ' (' + item.release_date + ')',
+                                    value: item.title,
+                                    id: item.id,
+                                    poster: item.poster_path
+                                };
+                            }));
+                        }
+                    });
+                },
+                minLength: 2, // Minimum characters required before triggering search
+                // Event handler for when a movie is selected from the autocomplete dropdown
+                select: function(event, ui) {
+                    // Fetch and populate movie details when a movie is selected
+                    fetchMovieDetails(ui.item.id);
+                }
+            }).autocomplete("instance")._renderItem = function(ul, item) {
+                // Custom rendering for autocomplete dropdown items
+                var $li = $("<li>").addClass('ui-menu-item').attr('data-value', item.value);
+                var $div = $("<div>").addClass('autocomplete-item').appendTo($li);
+
+                // Display movie poster thumbnail if available
+                if (item.poster) {
+                    $("<img>").attr('src', 'https://image.tmdb.org/t/p/w92' + item.poster).attr('alt', 'Movie Poster').addClass('autocomplete-movie-poster').appendTo($div);
+                }
+                // Display movie title in the autocomplete dropdown
+                $("<span>").addClass('autocomplete-movie-title').text(item.label).appendTo($div);
+
+                return $li.appendTo(ul);
+            };
+        });
+    </script>
 {% endblock %}
